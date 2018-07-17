@@ -1,60 +1,13 @@
-import os
-import csv
 import time
 import datetime
 from pprint import pprint
+from .csv_handler import CsvHandler
 
-class CsvFormatter():
+class CsvFormatter(CsvHandler):
     def __init__(self, input_path, options={}):
-        if not input_path or not os.path.isfile(input_path):
-            raise Exception('Invalid input_path')
-
-        input_file_name, ext = os.path.splitext(input_path)
-        output_file =  '{}_formatted.csv'.format(input_file_name)
-        self.options = options
-        self.row_input = []
-        self.row_input_before = []
-        self.row_output = []
-        self.row_output_before = []
+        super().__init__(input_path, options)
         self.data_loss_threshold_sec = 62
-        self.options = self.init_options(options)
         self.current_is_am = True
-
-        self.fr = open(input_path, 'r')
-        self.reader = csv.reader(self.fr) # readerオブジェクトを作成
-        self.fw = open(output_file, 'w')
-        self.writer = csv.writer(self.fw,
-                                lineterminator=self.options['lineterminator'])
-
-    def __del__(self):
-        if self.fr:
-            self.fr.close()
-        if self.fw:
-            self.fw.close()
-
-    def init_options(self, options):
-        default_options = {
-            'lineterminator':'\n',
-            'debug':False,
-        }
-        if not options:
-            return default_options
-
-        ret_options = {}
-        for key, value in default_options.items():
-            try:
-                ret_options[key] = options[key]
-            except KeyError:
-                ret_options[key] = value
-
-        return ret_options
-
-
-    def format(self):
-        self.set_format_header()
-        for self.row_input in self.reader:
-            self.format_each()
-            self.row_input_before = self.row_input
 
 
     def format_each(self):
@@ -62,7 +15,6 @@ class CsvFormatter():
         self.set_row_output()
         self.fill_missing_row()
         self.output()
-        self.row_output_before = self.row_output
 
 
     def set_format_header(self):
@@ -126,14 +78,4 @@ class CsvFormatter():
 
     def convert_dateime_format(self, ts):
         return datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M')
-
-
-    def output(self, row=[]):
-        if not row:
-            row = self.row_output
-        self.writer.writerow(row)
-
-
-    def is_debug(self):
-        return self.options['debug']
 
