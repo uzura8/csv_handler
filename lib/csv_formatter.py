@@ -10,7 +10,7 @@ class CsvFormatter(CsvHandler):
         self.current_is_am = True
 
 
-    def format_each(self):
+    def execute_each(self):
         self.check_and_change_time_period()
         self.set_row_output()
         self.fill_missing_row()
