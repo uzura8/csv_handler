@@ -4,7 +4,7 @@ class CsvAggregater(CsvHandler):
     def __init__(self, input_path, options={}):
         super().__init__(input_path, options)
         self.check_options()
-        self.calcvals_all = {}
+        self.index = 0
         self.calcvals_tmp = {}
         self.reset_calcvals()
 
@@ -29,7 +29,7 @@ class CsvAggregater(CsvHandler):
 
 
     def set_format_header(self):
-        header = ['datetime', 'input total(GB)', 'output total(GB)']
+        header = ['id', 'datetime', 'input_GB', 'output_GB']
         self.output(header)
 
 
@@ -54,7 +54,7 @@ class CsvAggregater(CsvHandler):
             cut_num = 10
         elif self.options['period'] == 'hour':
             cut_num = 13
-        return datetime_str.strip()[0:cut_num].replace(' ', '_')
+        return datetime_str.strip()[0:cut_num]
 
 
     def add_value(self):
@@ -71,8 +71,15 @@ class CsvAggregater(CsvHandler):
 
 
     def set_row_output(self):
+        self.index += 1
+
+        datetime = self.calcvals_tmp['period_key']
+        if self.options['period'] == 'hour':
+            datetime += ':00'
+
         self.row_output = [
-            self.calcvals_tmp['period_key'].replace('_', ' '),
+            self.index,
+            datetime,
             self.calcvals_tmp['input'] / 1024,
             self.calcvals_tmp['output'] / 1024
         ]
